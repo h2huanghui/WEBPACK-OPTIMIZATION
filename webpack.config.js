@@ -1,6 +1,9 @@
 const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const {
+    CleanWebpackPlugin
+} = require('clean-webpack-plugin')
 const glob = require('glob') //主要功能是查找匹配文件
 const PurgecssPlugin = require('purgecss-webpack-plugin')
 const AddAssetHtmlCdnPlugin = require('add-asset-html-cdn-webpack-plugin')
@@ -15,7 +18,7 @@ module.exports = (mode) => {
             path: path.resolve(__dirname, "dist")
         },
         externals: {
-            'jquery':'$' //不去打包代码中的jquery
+            'jquery': '$' //不去打包代码中的jquery
         },
         module: {
             rules: [{
@@ -70,8 +73,10 @@ module.exports = (mode) => {
                 }
             ]
         },
+        optimization: {
+            usedExports: true //把用到的模块和我说一下
+        },
         plugins: [
-           
             mode !== 'development' && new PurgecssPlugin({
                 paths: glob.sync(`${path.join(__dirname, 'src')}/**/*`, {
                     nodir: true
@@ -83,10 +88,13 @@ module.exports = (mode) => {
             new HtmlWebpackPlugin({
                 template: './src/template.html',
                 filename: 'index.html'
-            }) ,
-             new AddAssetHtmlCdnPlugin(true, {
-                'jquery':'https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js'
             }),
+            new AddAssetHtmlCdnPlugin(true, {
+                'jquery': 'https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js'
+            }),
+            new CleanWebpackPlugin({
+                cleanOnceBeforeBuildPatterns: ['**/*'] //默认所有目录下的所有文件
+            })
         ].filter(Boolean)
     }
 }
