@@ -9,13 +9,20 @@ const PurgecssPlugin = require('purgecss-webpack-plugin')
 const AddAssetHtmlCdnPlugin = require('add-asset-html-cdn-webpack-plugin')
 const DllReferencePlugin = require('webpack').DllReferencePlugin;
 const AddAssetHtmlPlugin = require('add-asset-html-webpack-plugin');
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
+
 module.exports = (mode) => {
     console.log(mode)
     return {
         mode: mode,
-        entry: path.resolve(__dirname, './src/main.js'), //入口
+        //entry 有三种写法 字符串 数组 对象
+        entry: {
+            'a': './src/a.js',
+            'b': './src/b.js'
+        },
+        // entry: path.resolve(__dirname, './src/main.js'), //入口
         output: { //出口
-            filename: 'bundle.js', //同步打包的名字
+            filename: '[name].js', //同步打包的名字
             chunkFilename: '[name].min.js', //异步打包的名字,name默认是从0开始,1,2,...也可以修改
             path: path.resolve(__dirname, "dist")
         },
@@ -89,7 +96,14 @@ module.exports = (mode) => {
             }),
             new HtmlWebpackPlugin({
                 template: './src/template.html',
-                filename: 'index.html'
+                filename: 'index.html',
+                chunks:['a']
+            }),
+            new HtmlWebpackPlugin({
+                template: './src/template.html',
+                filename: 'login.html',
+                chunksSortMode:'manual',//手动排序
+                chunks:['b','a'] //(默认顺序以entry的顺序) 按照我自己配置的顺序引入,先引入b,再引入a。
             }),
             new AddAssetHtmlCdnPlugin(true, {
                 'jquery': 'https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js'

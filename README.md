@@ -263,5 +263,51 @@ import(/* webpackChunkName:'video' */'./calc').then(data => {
 
 ```
 
+## 9.实现多入口打包
+```
+ entry: {
+            'a': './src/a.js',
+            'b': './src/b.js'
+        },
+```
+这个时候npm run build会报错,因为出口文件还是只有一个bundle.js
+```
+Conflict: Multiple chunks emit assets to the same filename bundle.js (chunks a and b)
+```
+需要修改output,这里的name就是对应的entry里面的a和b,最终打包到dist里面的就是a.js和b.js 
+```
+  output: { //出口
+            filename: '[name].js', //同步打包的名字
+            chunkFilename: '[name].min.js', //异步打包的名字,name默认是从0开始,1,2,...也可以修改
+            path: path.resolve(__dirname, "dist")
+        },
+```
+
+但这个时候a.js和b.js都在index.html中,而我们需要的是分别在两个html中引入
+```
+ new HtmlWebpackPlugin({
+                template: './src/template.html',
+                filename: 'index.html',
+                chunks:['a']
+            }),
+            new HtmlWebpackPlugin({
+                template: './src/template.html',
+                filename: 'login.html',
+                chunks:['b']
+            }),
+```
+
+如果一个login.html想先引入b,再引入a,需要手动配置
+```
+   new HtmlWebpackPlugin({
+                template: './src/template.html',
+                filename: 'login.html',
+                chunksSortMode:'manual',//手动排序
+                chunks:['b','a'] //(默认顺序以entry的顺序) 按照我自己配置的顺序引入,先引入b,再引入a。
+            }),
+```
+
+
+
 
 
