@@ -1,3 +1,9 @@
 body {
-    background: red;
+    background: url(./Chrysanthemum.jpg) no-repeat center;
+}
+.title {
+    color: green
+}
+.class1 {
+    background: black;
 }
