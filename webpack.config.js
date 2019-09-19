@@ -9,7 +9,9 @@ const PurgecssPlugin = require('purgecss-webpack-plugin')
 const AddAssetHtmlCdnPlugin = require('add-asset-html-cdn-webpack-plugin')
 const DllReferencePlugin = require('webpack').DllReferencePlugin;
 const AddAssetHtmlPlugin = require('add-asset-html-webpack-plugin');
-const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
+const {
+    BundleAnalyzerPlugin
+} = require('webpack-bundle-analyzer');
 
 module.exports = (mode) => {
     console.log(mode)
@@ -23,12 +25,12 @@ module.exports = (mode) => {
         // entry: path.resolve(__dirname, './src/main.js'), //入口
         output: { //出口
             filename: '[name].js', //同步打包的名字
-            chunkFilename: '[name].min.js', //异步打包的名字,name默认是从0开始,1,2,...也可以修改
+            // chunkFilename: '[name].min.js', //异步打包的名字,name默认是从0开始,1,2,...也可以修改
             path: path.resolve(__dirname, "dist")
         },
-        externals: {
-            'jquery': '$' //不去打包代码中的jquery
-        },
+        // externals: {
+        //     'jquery': '$' //不去打包代码中的jquery
+        // },
         module: {
             rules: [{
                     test: /\.(png|jpg|gif)$/,
@@ -83,8 +85,33 @@ module.exports = (mode) => {
             ]
         },
         optimization: {
-            usedExports: true //把用到的模块和我说一下
+            splitChunks: {
+                chunks: 'async', //默认支持异步代码的代码分割 impot()
+                minSize: 30000, //文件超过30k 就会抽离
+                maxSize: 0,
+                minChunks: 1, //最少模块引用一次才抽离
+                maxAsyncRequests: 5, //最多5个请求
+                maxInitialRequests: 3, //最多首屏加载3个请求
+                automaticNameDelimiter: '~', //xxx~a~b 
+                automaticNameMaxLength: 30, //最长名字大小不超过30
+                name: true,
+                cacheGroups: { //缓存组
+                    vendors: {
+                        test: /[\\/]node_modules[\\/]/,
+                        priority: -10
+                    },
+                    common: { // default~a~b 改成common
+                        name: 'common',
+                        minChunks: 2, //把上面的覆盖掉
+                        priority: -20,
+                        reuseExistingChunk: true
+                    }
+                }
+            }
         },
+        // optimization: {
+        //     usedExports: true //把用到的模块和我说一下
+        // },
         plugins: [
             mode !== 'development' && new PurgecssPlugin({
                 paths: glob.sync(`${path.join(__dirname, 'src')}/**/*`, {
@@ -97,25 +124,29 @@ module.exports = (mode) => {
             new HtmlWebpackPlugin({
                 template: './src/template.html',
                 filename: 'index.html',
-                chunks:['a']
+                chunks: ['a']
             }),
             new HtmlWebpackPlugin({
                 template: './src/template.html',
                 filename: 'login.html',
-                chunksSortMode:'manual',//手动排序
-                chunks:['b','a'] //(默认顺序以entry的顺序) 按照我自己配置的顺序引入,先引入b,再引入a。
+                chunksSortMode: 'manual', //手动排序
+                chunks: ['b', 'a'] //(默认顺序以entry的顺序) 按照我自己配置的顺序引入,先引入b,再引入a。
             }),
-            new AddAssetHtmlCdnPlugin(true, {
-                'jquery': 'https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js'
-            }),
+            // new AddAssetHtmlCdnPlugin(true, {
+            //     'jquery': 'https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js'
+            // }),
             new CleanWebpackPlugin({
                 cleanOnceBeforeBuildPatterns: ['**/*'] //默认所有目录下的所有文件
             }),
-            new DllReferencePlugin({
-                manifest: path.resolve(__dirname,'dll/mainfest.json')
-            }),
+            // new DllReferencePlugin({
+            //     manifest: path.resolve(__dirname, 'dll/mainfest.json')
+            // }),
             //把这个文件拷贝到dist文件夹下
-            new AddAssetHtmlPlugin({ filepath: require.resolve('./dll/react.dll.js') }),
+            new AddAssetHtmlPlugin({
+                filepath: require.resolve('./dll/react.dll.js')
+            }),
+
+            mode !== 'development' && new BundleAnalyzerPlugin()
         ].filter(Boolean)
     }
 }

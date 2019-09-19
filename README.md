@@ -306,7 +306,50 @@ Conflict: Multiple chunks emit assets to the same filename bundle.js (chunks a a
                 chunks:['b','a'] //(默认顺序以entry的顺序) 按照我自己配置的顺序引入,先引入b,再引入a。
             }),
 ```
+应用场景是,entry下面还有个common,需要引入common再引入具体的其他模块
 
+多入口好处,首页和登录页,引入的js不一样
+
+## 10.打包文件分析工具(依赖关系以及打包大小)
+npm install webpack-bundle-analyzer -D 
+
+场景1:a.js和b.js都引入了jq,那么在访问login.html会加载一次jq,访问index.html还会再加载一次jq,不太合理
+
+解决方案-把jq抽取 
+
+1)不和业务逻辑放在一起
+
+2)增加缓存(文件不变,可以从缓存中读取)
+
+## 在生产环境下, 将第三方模块进行抽离(开发也可以)
+参考webpack官方配置
+```
+ optimization: {
+            splitChunks: {
+                chunks: 'async', //默认支持异步代码的代码分割 impot()
+                minSize: 30000, //文件超过30k 就会抽离
+                maxSize: 0,
+                minChunks: 1, //最少模块引用一次才抽离
+                maxAsyncRequests: 5, //最多5个请求
+                maxInitialRequests: 3, //最多首屏加载3个请求
+                automaticNameDelimiter: '~', //xxx~a~b 
+                automaticNameMaxLength: 30, //最长名字大小不超过30
+                name: true,
+                cacheGroups: { //缓存组
+                    vendors: {
+                        test: /[\\/]node_modules[\\/]/,
+                        priority: -10
+                    },
+                    common: { // default~a~b 改成common
+                        name: 'common',
+                        minChunks: 2, //把上面的覆盖掉
+                        priority: -20,
+                        reuseExistingChunk: true
+                    }
+                }
+            }
+        },
+```
 
 
 

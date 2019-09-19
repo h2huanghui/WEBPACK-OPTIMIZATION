@@ -1,1 +1,3 @@
-console.log('b')
+import lodash from 'lodash'
+import('jquery')
+console.log('a',lodash)
