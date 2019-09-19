@@ -7,7 +7,8 @@ const {
 const glob = require('glob') //主要功能是查找匹配文件
 const PurgecssPlugin = require('purgecss-webpack-plugin')
 const AddAssetHtmlCdnPlugin = require('add-asset-html-cdn-webpack-plugin')
-
+const DllReferencePlugin = require('webpack').DllReferencePlugin;
+const AddAssetHtmlPlugin = require('add-asset-html-webpack-plugin');
 module.exports = (mode) => {
     console.log(mode)
     return {
@@ -94,7 +95,12 @@ module.exports = (mode) => {
             }),
             new CleanWebpackPlugin({
                 cleanOnceBeforeBuildPatterns: ['**/*'] //默认所有目录下的所有文件
-            })
+            }),
+            new DllReferencePlugin({
+                manifest: path.resolve(__dirname,'dll/mainfest.json')
+            }),
+            //把这个文件拷贝到dist文件夹下
+            new AddAssetHtmlPlugin({ filepath: require.resolve('./dll/react.dll.js') }),
         ].filter(Boolean)
     }
 }

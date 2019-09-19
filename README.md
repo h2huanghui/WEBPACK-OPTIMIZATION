@@ -129,3 +129,91 @@ package.json中
 ## 6.Scope Hoisting(wepack内置) 作用域提升(只在生产环境使用)
 
 每个模块都是函数,会导致内存过大。(在浏览器中跑的时候，都会产生一个作用域；一声明也会有作用域)
+
+## 7.DllPlugin (动态连接库,可以用作生产环境,可能有100多个,会有更好地方法)
+dll功能在开发之前 就先抽离好 打好包 以后就不用打包了
+场景:每次编译都会重新构建react 和 react-dom
+
+react react-dom先打包好放好。
+
+但是问题是,代码中还是引入的node modules下的啊...
+
+建立缓存列表 mainfest.json(先去找这个里面有没有)
+
+react:打包后的文件
+
+react-dom:打包后的文件
+
+## 如何打包第三方库!!!
+打包单个文件webpack.dll.js
+```
+const path = require('path')
+module.exports = {
+    mode: 'development',
+    entry: './src/calc.js', //sum minus
+    output: {
+        library: 'calc', //打包后接收自执行函数的名字叫calc
+        libraryTarget:'commonjs2', //默认用var模式,也可以用commonjs模式(结果是exports["calc"]),也可以是commonjs(module.exports) umd this 
+        filename: 'calc.js',
+        path: path.resolve(__dirname,'dll')
+    }
+}
+```
+package.json
+```   
+ "dll":"webpack --config webpack.dll.js"
+
+```
+
+打包多个文件,entry改为数组
+```
+const path = require('path')
+module.exports = {
+    mode: 'development',
+    entry: ['react','react-dom'], 
+    output: {
+        library: 'react', //打包后接收自执行函数的名字叫calc
+        // libraryTarget:'commonjs2', //默认用var模式,也可以用commonjs模式(结果是exports["calc"]),也可以是commonjs(module.exports) umd this 
+        filename: 'react.dll.js',
+        path: path.resolve(__dirname,'dll')
+    }
+}
+```
+
+## 需要产生一个缓存列表，这个列表需要指向真实的文件
+```
+   plugins: [
+        new DllPlugin({
+            name: 'react', //缓存列表指向真实的文件
+            path: path.resolve(__dirname,'dll/mainfest.json')
+        })
+    ]
+```
+本地使用了import React语法 ,需要去mainfest.json查找,找到后会加载对应的库的名字(也就是react.dll.js文件),可能会引用某个模块(列表中的某个模块),会去dll.js文件中查找(这里面存放的就是真实的文件)
+
+## 告诉webpack去mainfest.json里面去查找
+```
+const DllReferencePlugin = require('webpack').DllReferencePlugin;
+ new DllReferencePlugin({
+    manifest: path.resolve(__dirname,'dll/mainfest.json')
+})
+```
+没有放在dist文件夹的原因是,build的时候配置了 cleanWebpackPlugin。每次一大包删掉就没有意义。打包好就放在那里
+
+## 问题：dll下的react.dll.js并未在页面中被引用
+npm run dev报错 
+```
+external_"react":1 Uncaught ReferenceError: react is not defined
+```
+1) 可以在html中插入script标签(比较麻烦)
+```
+ <script src="../dll/react.dll.js"></script>
+```
+2) 插件(和cdn类似)
+npm i add-asset-html-webpack-plugin -D
+```
+//把这个文件拷贝到dist文件夹下
+new AddAssetHtmlPlugin({ filepath: require.resolve('dll/react.dll.js') }),
+```
+
+
