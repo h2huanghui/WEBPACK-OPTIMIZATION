@@ -321,7 +321,7 @@ npm install webpack-bundle-analyzer -D
 
 2)增加缓存(文件不变,可以从缓存中读取)
 
-## 在生产环境下, 将第三方模块进行抽离(开发也可以)
+## 在生产环境下, 将第三方模块进行抽离(开发环境也可以)
 参考webpack官方配置
 ```
  optimization: {
