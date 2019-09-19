@@ -66,7 +66,7 @@ new AddAssetHtmlCdnPlugin(true, {
 }),
 ```
 
-4.Tree-shaking
+## 5.Tree-shaking
 
 随着项目变大时,摇晃掉无用的代码(只支持es6语法,而且默认只在生产环境使用!!!)
 
@@ -101,7 +101,7 @@ optimization: {
 /*! exports provided: sum, minus */(本来就有)
 /*! exports used: minus */
 ```
-## 4.1会存在一个问题。
+## 5.1会存在一个问题。
 main.js中引入了test.js,但是main.js引入了但是并未使用。test.js代码如下：
 ```
 function test() {
@@ -119,9 +119,13 @@ package.json中
 "sideEffects":false, //默认是true(使用副作用),设置为false(不要副作用)
 ```
 
-## 4.2这种方式存在一个问题,即在main.js中引入css文件(css引入但也不会被去使用,就会也把这行代码删除失效)
+## 5.2这种方式存在一个问题,即在main.js中引入css文件(css引入但也不会被去使用,就会也把这行代码删除失效)
 1) 通过require(只针对es6语法,但有些格格不入)
 2) package.json配置css文件不是副作用
 ```
 "sideEffects": ["**/*.css"],
 ```
+
+## 6.Scope Hoisting(wepack内置) 作用域提升(只在生产环境使用)
+
+每个模块都是函数,会导致内存过大。(在浏览器中跑的时候，都会产生一个作用域；一声明也会有作用域)
