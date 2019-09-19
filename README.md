@@ -132,6 +132,7 @@ package.json中
 
 ## 7.DllPlugin (动态连接库,可以用作生产环境,可能有100多个,会有更好地方法)
 dll功能在开发之前 就先抽离好 打好包 以后就不用打包了
+
 场景:每次编译都会重新构建react 和 react-dom
 
 react react-dom先打包好放好。
@@ -215,5 +216,52 @@ npm i add-asset-html-webpack-plugin -D
 //把这个文件拷贝到dist文件夹下
 new AddAssetHtmlPlugin({ filepath: require.resolve('dll/react.dll.js') }),
 ```
+
+## 8.动态加载(原理就是jsonp)
+比如页面一个按钮,只有点击了才调用。但如果在页面初始化的时候,就去打包,性能会比较差。我们希望的是点击按钮的时候,才会动态加载这个文件
+```
+import { sum } from './calc'
+let button = document.createElement('button')
+
+button.addEventListener('click', () => {
+    console.log(sum(1, 2))
+})
+button.innerHTML = 'Click Me'
+document.body.appendChild(button)
+```
+=> 
+```
+let button = document.createElement('button')
+
+button.addEventListener('click', () => {
+    //草案语法 
+    //动态加载 类似于路由懒加载 import()语法-结果是一个promise
+    //webpack遇到这种语法,会使用jsonp动态加载这个calc文件
+    import('./calc').then(data => {
+        console.log(data.sum(1,7))
+    })
+})
+button.innerHTML = 'Click Me'
+document.body.appendChild(button)
+```
+
+点击按钮,可以看到浏览器请求0.bundle.js(代码分割被分割了)
+
+0可以修改(chunkFilename)
+
+```
+output: { //出口
+    filename: 'bundle.js', //同步打包的名字
+    chunkFilename: '[name].min.js', //异步打包的名字,name默认是从0开始,1,2, ...也可以修改
+    path: path.resolve(__dirname, "dist")
+},
+```
+```
+import(/* webpackChunkName:'video' */'./calc').then(data => {
+    console.log(data.sum(1,7))
+})
+
+```
+
 
 

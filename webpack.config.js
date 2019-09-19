@@ -15,7 +15,8 @@ module.exports = (mode) => {
         mode: mode,
         entry: path.resolve(__dirname, './src/main.js'), //入口
         output: { //出口
-            filename: 'bundle.js',
+            filename: 'bundle.js', //同步打包的名字
+            chunkFilename: '[name].min.js', //异步打包的名字,name默认是从0开始,1,2,...也可以修改
             path: path.resolve(__dirname, "dist")
         },
         externals: {
