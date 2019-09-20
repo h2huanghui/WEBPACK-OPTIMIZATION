@@ -368,6 +368,29 @@ dllPlugin和代码分割区别:
 
 2) 代码分割是在编译时(上线前把第三方代码分割出来)
 
+## 费时分析
+npm install --save-dev speed-measure-webpack-plugin
+
+smp.wrap
+```
+ SMP  ⏱
+General output time took 8.21 secs
+
+ SMP  ⏱  Plugins
+HtmlWebpackPlugin took 5.11 secs
+CleanWebpackPlugin took 0.02 secs
+
+ SMP  ⏱  Loaders
+D:\frontEnd\WEBPACK-OPTIMIZATION\node_modules\babel-loader\lib\index.js took 7.84 secs
+  module count = 50
+modules with no loaders took 4.069 secs
+  module count = 3
+D:\frontEnd\WEBPACK-OPTIMIZATION\node_modules\html-webpack-plugin\lib\loader.js took 0.046 secs
+```
+
+
+
+
 
 
 

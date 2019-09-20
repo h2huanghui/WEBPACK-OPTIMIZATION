@@ -12,10 +12,11 @@ const AddAssetHtmlPlugin = require('add-asset-html-webpack-plugin');
 const {
     BundleAnalyzerPlugin
 } = require('webpack-bundle-analyzer');
-
+const SpeedMeasurePlugin = require('speed-measure-webpack-plugin')
+const smp = new SpeedMeasurePlugin();
 module.exports = (mode) => {
     console.log(mode)
-    return {
+    return smp.wrap({
         mode: mode,
         //entry 有三种写法 字符串 数组 对象
         entry: {
@@ -151,7 +152,7 @@ module.exports = (mode) => {
             //     filepath: require.resolve('./dll/react.dll.js')
             // }),
 
-            mode !== 'development' && new BundleAnalyzerPlugin()
+            mode !== 'development' && new BundleAnalyzerPlugin(),
         ].filter(Boolean)
-    }
+    })
 }
