@@ -106,6 +106,7 @@ module.exports = (mode) => {
                     },
                     commons: { // default~a~b 改成common
                         name: 'commons',
+                        minSize:1, //如果公共代码 多一个字节就抽离
                         // minChunks: 2, //把上面的覆盖掉
                         priority: -20,
                         reuseExistingChunk: true

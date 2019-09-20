@@ -1,6 +1,8 @@
 import $ from 'jquery'
 import('lodash')
 console.log($)
+import d from './test'
+console.log(d)
 
 
 // import lodash from 'lodash'

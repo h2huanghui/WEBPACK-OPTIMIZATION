@@ -350,6 +350,8 @@ npm install webpack-bundle-analyzer -D
             }
         },
 ```
+## 代码分割(主要用作上线前,分割第三方代码 也可以用于抽离自己写的js文件)
+
 chunks:
 
 值有initial 同步代码被抽离
@@ -359,6 +361,13 @@ all 所有代码
 async(默认) 异步代码 import('') 
 
 注意:dllPlugin不要和 splitChunks共同使用
+
+dllPlugin和代码分割区别:
+
+1) dllPlugin是在构建之前(提高开发的打包速度)
+
+2) 代码分割是在编译时(上线前把第三方代码分割出来)
+
 
 
 
