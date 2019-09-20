@@ -350,6 +350,15 @@ npm install webpack-bundle-analyzer -D
             }
         },
 ```
+chunks:
+
+值有initial 同步代码被抽离
+
+all 所有代码
+
+async(默认) 异步代码 import('') 
+
+注意:dllPlugin不要和 splitChunks共同使用
 
 
 

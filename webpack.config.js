@@ -86,8 +86,8 @@ module.exports = (mode) => {
         },
         optimization: {
             splitChunks: {
-                chunks: 'async', //默认支持异步代码的代码分割 impot()
-                minSize: 30000, //文件超过30k 就会抽离
+                chunks: 'all', //默认支持异步代码(async)的代码分割 impot() 同步代码(initial)  所有的(all)
+                minSize: 20000, //文件超过30k 就会抽离
                 maxSize: 0,
                 minChunks: 1, //最少模块引用一次才抽离
                 maxAsyncRequests: 5, //最多5个请求
@@ -96,13 +96,17 @@ module.exports = (mode) => {
                 automaticNameMaxLength: 30, //最长名字大小不超过30
                 name: true,
                 cacheGroups: { //缓存组
+                    react: {
+                        test: /[\\/]node_modules[\\/]react|react-dom/,
+                        priority: -2
+                    },
                     vendors: {
                         test: /[\\/]node_modules[\\/]/,
                         priority: -10
                     },
-                    common: { // default~a~b 改成common
-                        name: 'common',
-                        minChunks: 2, //把上面的覆盖掉
+                    commons: { // default~a~b 改成common
+                        name: 'commons',
+                        // minChunks: 2, //把上面的覆盖掉
                         priority: -20,
                         reuseExistingChunk: true
                     }
@@ -142,9 +146,9 @@ module.exports = (mode) => {
             //     manifest: path.resolve(__dirname, 'dll/mainfest.json')
             // }),
             //把这个文件拷贝到dist文件夹下
-            new AddAssetHtmlPlugin({
-                filepath: require.resolve('./dll/react.dll.js')
-            }),
+            // new AddAssetHtmlPlugin({
+            //     filepath: require.resolve('./dll/react.dll.js')
+            // }),
 
             mode !== 'development' && new BundleAnalyzerPlugin()
         ].filter(Boolean)
